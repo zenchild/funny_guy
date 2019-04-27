@@ -1,0 +1,20 @@
+/.bundle/
+/.yardoc
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+
+Gemfile.lock
+
+# RVM setup
+/.ruby-version
+/.ruby-gemset
+
+# Vim swap files
+*.sw[op]
+
+# VS Code Dir
+/.vscode
