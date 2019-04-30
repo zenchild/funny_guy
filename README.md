@@ -1,35 +1,39 @@
-# DadJokesAreFunny
+# FunnyGuy
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/dad_jokes_are_funny`. To experiment with that code, run `bin/console` for an interactive prompt.
+This was a fun project to work on. I've had a little bit of experience with Markov chains in the past but it was quite awhile ago. It was getting to the point where it felt like something I could keep working on and tweaking but I figured I should probably call it quits for now. I will detail a few of the pieces of code below and discuss my thoughts on them.
 
-TODO: Delete this and the text above, and describe your gem
+## TLDR: Usage
 
-## Installation
+```
+# Generate jokes using a 1st order Markov Chain
+rake tell_me_a_1st_order_joke
 
-Add this line to your application's Gemfile:
+# Generate jokes using a 2nd order Markov Chain
+rake tell_me_a_2nd_order_joke
 
-```ruby
-gem 'dad_jokes_are_funny'
+# Clear the jokes db and chain cache
+rake clear_db
 ```
 
-And then execute:
+## HTTP Client
 
-    $ bundle
+The HTTP Client pattern that I've added to this library might be a little overkill of what we're doing here but it is a common pattern that I use for talking to extenal APIs and is quite extensible. It uses Faraday as a base client but allows you to hook into it with yields in various places. It uses this as the basis for the ICanHazDadJoke API but it would be relatively easy to hook in another API.
 
-Or install it yourself as:
+## Markov Processor and Chain
 
-    $ gem install dad_jokes_are_funny
+I decided to split the Markov classes into a `Processor` class and a `Chain` class since it seemed that there were different responsibilites with the processing vs use of the chain.
 
-## Usage
+The `Processor` supports creating chains of the order 1, 2 or 3. This means it will use word keys with either 1, 2 or 3 words. The higher the order the less random the sentence generation will be. If you specify an order outside of this range it will generate an exception.
 
-TODO: Write usage instructions here
+## FunnyGuy::Generator
 
-## Development
+The `FunnyGuy::Generator` class is mosty a utility class and has more static methods than I normally like to use but it works well for demonstration purposes. It has methods that will build a `jokesdb` with the available jokes from the ICanHazDadJoke API so it doesn't have to go to the network for each use. It will also cache the Markov chains for each order that you build.
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+## Enhancements
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+There are quite a few enhancements that could happen with this. I will list a few below.
 
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/dad_jokes_are_funny.
+* Better bounds checking: While it is doubtful that this would go into a loop I suppose it is possible. There is no limit checking in that respect.
+* Better handling of punctuation: The text retrieved from ICanHazDadJoke has punctuation all over the place. This library takes a pretty naive approach with punctuation and could be enhanced.
+* tests: ha! sorry. no tests. I thought it would be interesting to benchmark the just-in-time weighted selection vs a one-time computation of the cumulative density function for each key. I think it would be interesting to benchmark various iterations of the Markov chain processor. For instance, the StringScanner vs a simple split of tokens to an Array.
+* ???: I'm sure there is much more.
