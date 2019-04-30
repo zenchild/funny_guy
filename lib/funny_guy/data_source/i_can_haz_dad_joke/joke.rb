@@ -9,4 +9,8 @@ class FunnyGuy::DataSource::ICanHasDadJoke::Joke
 
   def_delegators :@object, :id, :status, :joke
   def_delegator :@object, :joke, :to_s
+
+  def as_json
+    @object
+  end
 end
